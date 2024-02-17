@@ -15,4 +15,7 @@ module.exports = {
       { allowConstantExport: true },
     ],
   },
+  overrides: [{
+    "env": { "jest": true },
+  }]
 }

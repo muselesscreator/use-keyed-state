@@ -1,16 +1,15 @@
-import { vi } from 'vitest';
-vi.mock('react-intl', () => {
-  const i18n = vi.importActual('@edx/frontend-platform/i18n');
-  const { formatMessage } = vi.importActual('testUtils');
+jest.mock('react-intl', () => {
+  const i18n = jest.requireActual('react-intl');
+  const { formatMessage } = jest.requireActual('testUtils');
   return {
     ...i18n,
-    useIntl: vi.fn(() => ({ formatMessage })),
+    useIntl: jest.fn(() => ({ formatMessage })),
     defineMessages: m => m,
   };
 });
 
-vi.mock('react', () => ({
-  ...vi.importActual('react'),
-  useEffect: vi.fn((cb, prereqs) => ({ useEffect: { cb, prereqs } })),
-  useRef: vi.fn((val) => ({ current: val, useRef: true })),
+jest.mock('react', () => ({
+  ...jest.requireActual('react'),
+  useEffect: jest.fn((cb, prereqs) => ({ useEffect: { cb, prereqs } })),
+  useRef: jest.fn((val) => ({ current: val, useRef: true })),
 }));
