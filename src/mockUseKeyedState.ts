@@ -1,15 +1,20 @@
+import {
+  vi,
+  MockInstance,
+  expect,
+} from 'vitest';
 import * as hooks from './hooks';
 
 
 /**
  * Mock utility for working with useState in a hooks module.
  * Expects/requires an object containing the state object in order to ensure
- * the mock behajestor works appropriately.
+ * the mock behavior works appropriately.
  *
  * Expected format:
  *   hooks = { state: { <key>: (val) => React.createRef(val), ... } }
  *
- * Returns a utility for mocking useState and projestding access to specific state values
+ * Returns a utility for mocking useState and providing access to specific state values
  * and setState methods, as well as allowing per-test configuration of useState value returns.
  *
  * Example usage:
@@ -44,7 +49,7 @@ import * as hooks from './hooks';
  *       state.mock();
  *       out = exampleHook();
  *     });
- *     describe('behajestor', () => {
+ *     describe('behavior', () => {
  *       it('initializes state hooks', () => {
  *         state.expectInitializedWith(state.keys.isOpen, false);
  *       });
@@ -75,14 +80,14 @@ import * as hooks from './hooks';
  */
 export class MockUseKeyedState {
   keys: Record<string, string>;
-  hookSpy: jest.Spied<typeof hooks.useKeyedState>; 
+  hookSpy: MockInstance; 
   values: Record<string, unknown>;
   initValues: Record<string, unknown>;
   setState: Record<string, unknown>;
 
   constructor(stateKeys: Record<string, string>) {
     this.keys = stateKeys;
-    this.hookSpy = jest.spyOn(hooks, 'useKeyedState');
+    this.hookSpy = vi.spyOn(hooks, 'useKeyedState');
     this.values = {};
     this.initValues = {};
     this.setState = {};
@@ -103,7 +108,7 @@ export class MockUseKeyedState {
     this.setState = {};
     Object.keys(this.keys).forEach((key) => {
       this.values[key] = null;
-      this.setState[key] = jest.fn((val) => {
+      this.setState[key] = vi.fn((val) => {
         this.values[key] = val;
       });
     });

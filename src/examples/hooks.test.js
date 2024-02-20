@@ -1,9 +1,34 @@
+import {
+  vi,
+  describe,
+  it,
+  expect,
+  beforeEach,
+} from 'vitest';
 import React from 'react';
 import getEffects from '@muselesscreator/get-effects';
 import mockUseKeyedState from '../mockUseKeyedState';
 
 import * as hooks from './hooks';
 const { useExampleComponentData } = hooks;
+
+vi.mock('react-intl', () => {
+  const i18n = vi.importActual('@edx/frontend-platform/i18n');
+  const { formatMessage } = vi.importActual('testUtils');
+  return {
+    ...i18n,
+    useIntl: vi.fn(() => ({ formatMessage })),
+    defineMessages: m => m,
+  };
+});
+
+vi.mock('react', () => ({
+  default: {
+    ...vi.importActual('react'),
+    useEffect: vi.fn((cb, prereqs) => ({ useEffect: { cb, prereqs } })),
+    useRef: vi.fn((val) => ({ current: val, useRef: true })),
+  },
+}));
 
 const state = mockUseKeyedState(hooks.stateKeys);
 
@@ -12,12 +37,12 @@ let out;
 
 // Mock ref for shallow testing, to allow hooks to access as normal.
 const ref = {
-  current: { click: jest.fn(), value: 'test-value' },
+  current: { click: vi.fn(), value: 'test-value' },
 };
 
 describe('ExampleComponent hooks', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     React.useRef.mockReturnValue(ref);
   });
   describe('useExampleComponentData hook', () => {
@@ -28,7 +53,7 @@ describe('ExampleComponent hooks', () => {
       state.mock();
       out = useExampleComponentData();
     });
-    describe('behajestor', () => {
+    describe('behavior', () => {
       it('initializes state fields', () => {
         /**
          * Use expectInitializedWith to validate initialization calls
@@ -73,7 +98,7 @@ describe('ExampleComponent hooks', () => {
     describe('output', () => {
       describe('handleImportedComponentClicked', () => {
         /**
-         * Mock ref behajestor on per-test basis if needed to validate behajestor
+         * Mock ref behavior on per-test basis if needed to validate behavior
          */
         it('clicks the file input if populated', () => {
           out.handleImportedComponentClicked();
