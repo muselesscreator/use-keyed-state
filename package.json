@@ -15,12 +15,10 @@
   ],
   "exports": {
     ".": {
-      "import": "/dist/esm/index.js",
-      "default": "dist/index.js"
+      "default": "dist/index.mjs"
     },
     "./mockUseKeyedState": {
-      "import": "/dist/esm/mockUseKeyedState.js",
-      "default": "dist/mockUseKeyedState.js"
+      "default": "dist/mockUseKeyedState.mjs"
     }
   },
   "author": "muselesscreator",
