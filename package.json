@@ -15,7 +15,7 @@
   ],
   "exports": {
     ".": {
-      "default": "dist/index.js"
+      "default": "dist/main.js"
     }
   },
   "author": "muselesscreator",
