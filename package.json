@@ -15,10 +15,10 @@
   ],
   "exports": {
     ".": {
-      "default": "dist/index.mjs"
+      "import": "./dist/index.mjs"
     },
     "./mockUseKeyedState": {
-      "default": "dist/mockUseKeyedState.mjs"
+      "import": "./dist/mockUseKeyedState.mjs"
     }
   },
   "author": "muselesscreator",
