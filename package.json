@@ -1,6 +1,6 @@
 {
   "name": "@muselesscreator/use-keyed-state",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "React toolkit for writing and testing react components",
   "main": "dist/index.js",
   "release": {
