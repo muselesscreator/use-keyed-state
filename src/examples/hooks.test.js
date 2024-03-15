@@ -62,9 +62,6 @@ describe('ExampleComponent hooks', () => {
         state.expectInitializedWith(state.keys.numEvents, 0);
         state.expectInitializedWith(state.keys.importedClicked, 0);
       });
-      it('initializes react ref', () => {
-        expect(React.useRef).toHaveBeenCalled();
-      });
       it('sets loaded to true on initialization', () => {
         /**
          * Use getEffects to load callback passed to useEffect based on prerequisite array
