@@ -8,6 +8,7 @@ import {
 import React from 'react';
 import getEffects from '@muselesscreator/get-effects';
 import mockUseKeyedState from '../mockUseKeyedState';
+import * as hookModule from '../';
 
 import * as hooks from './hooks';
 const { useExampleComponentData } = hooks;
@@ -31,6 +32,7 @@ vi.mock('react', () => ({
 }));
 
 const state = mockUseKeyedState(hooks.stateKeys);
+const moduleState = mockUseKeyedState(hooks.stateKeys, hookModule);
 
 let out;
 
@@ -112,5 +114,54 @@ describe('ExampleComponent hooks', () => {
         expect(out.formAction).toEqual(hooks.formUrl);
       });
     });
+  });
+  describe('useExampleComponentData hook with passed hook module', () => {
+    beforeEach(() => {
+      /**
+       * Mock state for all hooks that *use* state fields
+       */
+      moduleState.mock();
+      out = useExampleComponentData(hookModule);
+    });
+    describe('behavior', () => {
+      it('initializes state fields', () => {
+        /**
+         * Use expectInitializedWith to validate initialization calls
+         */
+        moduleState.expectInitializedWith(moduleState.keys.loaded, false);
+        moduleState.expectInitializedWith(moduleState.keys.numEvents, 0);
+        moduleState.expectInitializedWith(moduleState.keys.importedClicked, 0);
+      });
+      it('sets loaded to true on initialization', () => {
+        /**
+         * Use getEffects to load callback passed to useEffect based on prerequisite array
+         */
+        const [[ cb ]] = React.useEffect.mock.calls;
+        cb();
+        /**
+         * use expectSetStateCalledWith to validate setState calls.
+         */
+        moduleState.expectSetStateCalledWith(moduleState.keys.loaded, true);
+      });
+      it('increments numEvents on importClicked or fileChanged', () => {
+        /**
+         * Use getEffects to load callback passed to useEffect based on prerequisite array
+         */
+        const cb = getEffects([
+          moduleState.setState.numEvents,
+          moduleState.values.importedClicked,
+        ], React)[0];
+        cb();
+        /**
+         * For complex setState calls (called with a method), access setState call
+         * from state object and test by callback.
+         */
+        expect(moduleState.setState.numEvents).toHaveBeenCalled();
+        const stateCb = moduleState.setState.numEvents.mock.calls[0][0];
+        expect(stateCb(1)).toEqual(2);
+        expect(stateCb(5)).toEqual(6);
+      });
+    });
+
   });
 });

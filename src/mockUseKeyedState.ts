@@ -85,9 +85,9 @@ export class MockUseKeyedState {
   initValues: Record<string, unknown>;
   setState: Record<string, unknown>;
 
-  constructor(stateKeys: Record<string, string>) {
+  constructor(stateKeys: Record<string, string>, hookModule?: { useKeyedState: any }) {
     this.keys = stateKeys;
-    this.hookSpy = vi.spyOn(hooks, 'useKeyedState');
+    this.hookSpy = vi.spyOn(hookModule ? hookModule : hooks, 'useKeyedState');
     this.values = {};
     this.initValues = {};
     this.setState = {};
