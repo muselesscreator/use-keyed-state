@@ -8,7 +8,7 @@ import {
 import React from 'react';
 import getEffects from '@muselesscreator/get-effects';
 import mockUseKeyedState from '../mockUseKeyedState';
-import * as hookModule from '../';
+import * as hookModule from '..';
 
 import * as hooks from './hooks';
 const { useExampleComponentData } = hooks;
@@ -31,8 +31,6 @@ vi.mock('react', () => ({
   },
 }));
 
-const state = mockUseKeyedState(hooks.stateKeys);
-const moduleState = mockUseKeyedState(hooks.stateKeys, hookModule);
 
 let out;
 
@@ -42,8 +40,12 @@ const ref = {
   current: { click: vi.fn(), value: 'test-value' },
 };
 
+let state;
+let moduleState;
 describe('ExampleComponent hooks', () => {
   beforeEach(() => {
+    state = mockUseKeyedState(hooks.stateKeys);
+    moduleState = mockUseKeyedState(hooks.stateKeys, hookModule);
     vi.clearAllMocks();
     React.useRef.mockReturnValue(ref);
   });
@@ -121,7 +123,7 @@ describe('ExampleComponent hooks', () => {
        * Mock state for all hooks that *use* state fields
        */
       moduleState.mock();
-      out = useExampleComponentData(hookModule);
+      out = useExampleComponentData();
     });
     describe('behavior', () => {
       it('initializes state fields', () => {

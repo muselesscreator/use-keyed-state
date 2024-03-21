@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { StrictDict } from '@muselesscreator/strict-dict';
-import { useKeyedState } from '../hooks';
+import { useKeyedState }from '..';
 
 export const stateKeys = StrictDict({
   importedClicked: 'importedClicked',

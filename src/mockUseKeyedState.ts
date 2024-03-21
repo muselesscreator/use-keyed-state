@@ -115,6 +115,7 @@ export class MockUseKeyedState {
   }
 
   mockHook(key: string, val: unknown) {
+    console.log({ useKeyedState: { key, val } });
     this.initValues[key] = val;
     this.values[key] = val;
     return [this.values[key], this.setState[key]];
@@ -183,6 +184,9 @@ export class MockUseKeyedState {
   }
 }
 
-export const mockUseKeyedState = (stateKeys: Record<string, string>) => new MockUseKeyedState(stateKeys);
+export const mockUseKeyedState = (
+  stateKeys: Record<string, string>,
+  hookModule?: { useKeyedState: any }
+ ) => new MockUseKeyedState(stateKeys, hookModule);
 
 export default mockUseKeyedState;
