@@ -10,7 +10,6 @@ export default defineConfig({
   outDir:"dist", // Output directory
   entry: [
     'src/index.ts',
-    'src/mockUseKeyedState.ts',
   ],
   format: ['esm'], // Output format(s)
 });

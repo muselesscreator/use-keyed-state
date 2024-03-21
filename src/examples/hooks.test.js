@@ -1,3 +1,17 @@
+/**
+ * useKeyedState Testing Pattern:
+ * Setup:
+ * 1. Mock useKeyedState to return a mock function
+ * 2. Locally define objects for current values, setState methods, and initial values
+ * 3. Mock the useKeyedState hook to update the initValues object and return the current value and setState method
+ *
+ * Testing:
+ * 1. Call the hook
+ * 2. Use initial-values object to validate initial state values
+ * 3. Use current-values object to validate access to the state values
+ * 4. Use setState-methods object to validate state updates
+ * 5. Reset the initial-values object to null for each field before each test
+ */
 import {
   vi,
   describe,
@@ -7,11 +21,12 @@ import {
 } from 'vitest';
 import React from 'react';
 import getEffects from '@muselesscreator/get-effects';
-import mockUseKeyedState from '../mockUseKeyedState';
-import * as hookModule from '..';
+import { useKeyedState } from '..';
 
-import * as hooks from './hooks';
-const { useExampleComponentData } = hooks;
+import useExampleComponentData, {
+  stateKeys,
+  formUrl,
+} from './hooks';
 
 vi.mock('react-intl', () => {
   const i18n = vi.importActual('@edx/frontend-platform/i18n');
@@ -31,6 +46,7 @@ vi.mock('react', () => ({
   },
 }));
 
+vi.mock('..', () => ({ useKeyedState: vi.fn() }));
 
 let out;
 
@@ -40,31 +56,52 @@ const ref = {
   current: { click: vi.fn(), value: 'test-value' },
 };
 
-let state;
-let moduleState;
+// current values for the state fields
+const stateValues = {
+  [stateKeys.importedClicked]: 'importedClicked',
+  [stateKeys.loaded]: 'loaded',
+  [stateKeys.numEvents]: 'numEvents',
+};
+// setState methods for the state fields
+const setState = {
+  [stateKeys.importedClicked]: vi.fn(),
+  [stateKeys.loaded]: vi.fn(),
+  [stateKeys.numEvents]: vi.fn(),
+};
+// update-able initial values for the state fields
+const initValues = {
+  [stateKeys.importedClicked]: null,
+  [stateKeys.loaded]: null,
+  [stateKeys.numEvents]: null,
+};
+const resetInitialValues = () => {
+  Object.keys(initValues).forEach(key => {
+    initValues[key] = null;
+  });
+};
+const mockUseKeyedState = (key, val) => {
+  initValues[key] = val;
+  return [stateValues[key], setState[key]];
+};
+useKeyedState.mockImplementation(mockUseKeyedState);
+
 describe('ExampleComponent hooks', () => {
   beforeEach(() => {
-    state = mockUseKeyedState(hooks.stateKeys);
-    moduleState = mockUseKeyedState(hooks.stateKeys, hookModule);
+    resetInitialValues();
     vi.clearAllMocks();
     React.useRef.mockReturnValue(ref);
   });
   describe('useExampleComponentData hook', () => {
     beforeEach(() => {
-      /**
-       * Mock state for all hooks that *use* state fields
-       */
-      state.mock();
       out = useExampleComponentData();
     });
     describe('behavior', () => {
       it('initializes state fields', () => {
-        /**
-         * Use expectInitializedWith to validate initialization calls
-         */
-        state.expectInitializedWith(state.keys.loaded, false);
-        state.expectInitializedWith(state.keys.numEvents, 0);
-        state.expectInitializedWith(state.keys.importedClicked, 0);
+        expect(initValues).toEqual({
+          [stateKeys.importedClicked]: 0,
+          [stateKeys.loaded]: false,
+          [stateKeys.numEvents]: 0,
+        });
       });
       it('sets loaded to true on initialization', () => {
         /**
@@ -72,26 +109,19 @@ describe('ExampleComponent hooks', () => {
          */
         const [[ cb ]] = React.useEffect.mock.calls;
         cb();
-        /**
-         * use expectSetStateCalledWith to validate setState calls.
-         */
-        state.expectSetStateCalledWith(state.keys.loaded, true);
+        expect(setState.loaded).toHaveBeenCalledWith(true);
       });
       it('increments numEvents on importClicked or fileChanged', () => {
         /**
          * Use getEffects to load callback passed to useEffect based on prerequisite array
          */
         const cb = getEffects([
-          state.setState.numEvents,
-          state.values.importedClicked,
+          setState.numEvents,
+          stateValues.importedClicked,
         ], React)[0];
         cb();
-        /**
-         * For complex setState calls (called with a method), access setState call
-         * from state object and test by callback.
-         */
-        expect(state.setState.numEvents).toHaveBeenCalled();
-        const stateCb = state.setState.numEvents.mock.calls[0][0];
+        expect(setState.numEvents).toHaveBeenCalled();
+        const stateCb = setState.numEvents.mock.calls[0][0];
         expect(stateCb(1)).toEqual(2);
         expect(stateCb(5)).toEqual(6);
       });
@@ -113,57 +143,8 @@ describe('ExampleComponent hooks', () => {
         });
       });
       it('passes hooks.formUrl from hook', () => {
-        expect(out.formAction).toEqual(hooks.formUrl);
+        expect(out.formAction).toEqual(formUrl);
       });
     });
-  });
-  describe('useExampleComponentData hook with passed hook module', () => {
-    beforeEach(() => {
-      /**
-       * Mock state for all hooks that *use* state fields
-       */
-      moduleState.mock();
-      out = useExampleComponentData();
-    });
-    describe('behavior', () => {
-      it('initializes state fields', () => {
-        /**
-         * Use expectInitializedWith to validate initialization calls
-         */
-        moduleState.expectInitializedWith(moduleState.keys.loaded, false);
-        moduleState.expectInitializedWith(moduleState.keys.numEvents, 0);
-        moduleState.expectInitializedWith(moduleState.keys.importedClicked, 0);
-      });
-      it('sets loaded to true on initialization', () => {
-        /**
-         * Use getEffects to load callback passed to useEffect based on prerequisite array
-         */
-        const [[ cb ]] = React.useEffect.mock.calls;
-        cb();
-        /**
-         * use expectSetStateCalledWith to validate setState calls.
-         */
-        moduleState.expectSetStateCalledWith(moduleState.keys.loaded, true);
-      });
-      it('increments numEvents on importClicked or fileChanged', () => {
-        /**
-         * Use getEffects to load callback passed to useEffect based on prerequisite array
-         */
-        const cb = getEffects([
-          moduleState.setState.numEvents,
-          moduleState.values.importedClicked,
-        ], React)[0];
-        cb();
-        /**
-         * For complex setState calls (called with a method), access setState call
-         * from state object and test by callback.
-         */
-        expect(moduleState.setState.numEvents).toHaveBeenCalled();
-        const stateCb = moduleState.setState.numEvents.mock.calls[0][0];
-        expect(stateCb(1)).toEqual(2);
-        expect(stateCb(5)).toEqual(6);
-      });
-    });
-
   });
 });

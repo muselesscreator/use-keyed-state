@@ -5,7 +5,6 @@ import { useKeyedState }from '..';
 
 export const stateKeys = StrictDict({
   importedClicked: 'importedClicked',
-  fileInputChanged: 'fileInputChanged',
   loaded: 'loaded',
   numEvents: 'numEvents',
 });
@@ -33,7 +32,6 @@ export const useExampleComponentData = () => {
 
   return {
     importClicked,
-
     fileInputRef,
     formAction: formUrl,
     handleImportedComponentClicked,

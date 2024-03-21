@@ -16,9 +16,6 @@
   "exports": {
     ".": {
       "import": "./dist/index.mjs"
-    },
-    "./mockUseKeyedState": {
-      "import": "./dist/mockUseKeyedState.mjs"
     }
   },
   "author": "muselesscreator",
