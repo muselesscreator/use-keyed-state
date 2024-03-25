@@ -232,3 +232,6 @@ describe('useMyHook', () => {
   });
 });
 ```
+
+### API
+API documentation available at https://muselesscreator.github.io/use-keyed-state/
